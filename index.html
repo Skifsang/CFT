@@ -161,10 +161,10 @@ app.controller('goodsList', function($scope, $http, $filter) {
 			$scope.categoryFilter = "";
 		} else {
 			$scope.categoryFilter = {category : "" + clickedCategoryText + ""};
+			$scope.pageSize = 25; //Temporary fix, should be removed.
 		}
 		
 		angular.element($event.currentTarget).addClass("active");
-		$scope.numberOfPages();
 		$scope.currentPage = 0;
 	}
 	
