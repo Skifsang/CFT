@@ -1,20 +1,33 @@
 <!DOCTYPE html>
-<html ng-app="store">
+<html >
 <head>
-<script src="js/angular.min.js"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+<script src="js/angular/angular.min.js"></script>
 </head>
 <body>
-<div ng-controller="goodsList">
-	<table>
+<div class="navbar navbar-inverse bg-inverse">
+    <div class="container d-flex justify-content-between">
+		<a href="index.html" class="navbar-brand">Our best goods!</a>
+    </div>
+</div>
+<div ng-app="store" ng-controller="goodsList">
+	<table class="table">
+		<thead>
+			<th>id</th>
+			<th>Name</th>
+			<th>Category</th>
+			<th>Amount</th>
+			<th>Date</th>
+		</thead>
 		<tbody>
-			<tr ng-repeat="item in goods">
+			<tr ng-repeat="item in goods | orderBy : 'id'">
 				<td>{{item.id}}</td>
-				<td>{{item.id}}</td>
-				<td>{{item.id}}</td>
-				<td>{{item.id}}</td>
-				<td>{{item.id}}</td>
-				<td>{{item.id}}</td>
-				<td>{{item.id}}</td>
+				<td>{{item.name | limitTo:nameLetterLimit}}</td>
+				<td>{{item.category}}</td>
+				<td>{{item.amount}}</td>
+				<td>{{item.date}}</td>
 			</tr>
 		</tbody>
 	</table>
@@ -23,9 +36,12 @@
 var app = angular.module('store', []);
 app.controller('goodsList', function($scope, $http) {
   $http.get("https://raw.githubusercontent.com/Skifsang/CFT/master/data/data.json").then(function (response) {
-      $scope.goods = response.data.records;
+		$scope.goods = response.data.goods;
+		$scope.nameLetterLimit = 250;
   });
 });
+</script>
+<script>
 </script>
 </body>
 </html>
