@@ -1,0 +1,50 @@
+.container-fluid{ 
+	padding: 0px;
+}
+
+.navbar{
+	width: 100%;
+}
+
+#categoryList{
+	padding: 25px 25px 10px;
+}
+
+#pagination{
+	padding: 10px 25px;
+}
+
+#paginationSizes{
+	display: inline;
+	padding: 3px;
+}
+
+#paginationSizes li{
+	display: inline;
+    margin-right: 5px;
+}
+
+#paginationSizes li.active{
+	text-decoration: underline;
+}
+
+#paginationSizes li:hover{
+	cursor: pointer;
+	text-decoration: underline;
+}
+
+#goodsTableDiv{
+	padding: 0px 40px;
+}
+
+thead{
+	border-bottom: 3px solid black;
+}
+
+th:hover, td:hover{
+	cursor: pointer;
+}
+
+.announcementText{
+	padding: 50px 0px;
+}

@@ -1,47 +1,199 @@
 <!DOCTYPE html>
-<html >
+<html ng-app="store" ng-controller="goodsList">
 <head>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+<link rel="stylesheet" href="css/style.css">
+
 <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+<script src="https://use.fontawesome.com/b2960c4681.js"></script>
 <script src="js/angular/angular.min.js"></script>
 </head>
 <body>
-<div class="navbar navbar-inverse bg-inverse">
-    <div class="container d-flex justify-content-between">
-		<a href="index.html" class="navbar-brand">Our best goods!</a>
-    </div>
+<div class="container-fluid">
+	<div class="row no-gutters">
+		<div class="navbar navbar-inverse bg-inverse">
+			<div class="container d-flex justify-content-between">
+				<a href="index.html" class="navbar-brand">Our best goods!</a>
+			</div>
+		</div>
+	</div>
+	<div class="row no-gutters">
+		<div class="col" id="categoryList">
+			<a ng-Click="changeCategory($event)" class="btn btn-secondary" role="button" id="all">All</a>
+			<a ng-Click="changeCategory($event)" class="btn btn-secondary" role="button" id="toys">Toys</a>
+			<a ng-Click="changeCategory($event)" class="btn btn-secondary" role="button" id="comics">Comics</a>
+			<a ng-Click="changeCategory($event)" class="btn btn-secondary" role="button" id="clothes">Clothes</a>
+		</div>
+	</div>
+	<div class="row no-gutters">
+		<div class="col" id="pagination">
+			<span>Items per page: </span>
+			<ul id="paginationSizes">
+				<li ng-Click="changepPageSize($event)" id="pageSize5">5</li>
+				<li ng-Click="changepPageSize($event)" id="pageSize10">10</li>
+				<li ng-Click="changepPageSize($event)" id="pageSize25">25</li>
+			</ul>
+			<button ng-disabled="currentPage == 0" ng-click="currentPage = currentPage - 1">Previous</button>
+			{{currentPage+1}}/{{numberOfPages()}}
+			<button ng-disabled="currentPage >= goods.length/pageSize - 1" ng-click="currentPage = currentPage + 1">Next</button>
+		</div>
+	</div>
+	<div class="row justify-content-center">
+		<div class="col" id="goodsTableDiv">
+			<table class="table table-hover">
+				<thead class="thead-default">
+					<th ng-Click="changeOrder($event)" id="id">id <i></i></th>
+					<th ng-Click="changeOrder($event)" id="name">Name <i></i></th>
+					<th ng-Click="changeOrder($event)" id="category">Category <i></i></th>
+					<th ng-Click="changeOrder($event)" id="amount">Amount <i></i></th>
+					<th ng-Click="changeOrder($event)" id="date">Date <i></i></th>
+				</thead>
+				<tbody id="goodsBody">
+					<tr 
+						ng-repeat="item in goods | orderBy : order | startFrom : currentPage * pageSize | filter : categoryFilter | limitTo : pageSize"
+						ng-Click="openDetails($event)"
+						data-toggle="modal" data-target="#detailsModal"
+					>
+						<td class="itemId">{{item.id}}</td>
+						<td class="itemName">{{item.name | limitTo:nameLetterLimit}}</td>
+						<td class="itemCategory">{{item.category}}</td>
+						<td class="itemAmount">{{item.amount}}</td>
+						<td class="itemDate">{{item.date}}</td>
+						<input class="itemDescription" type="hidden" value={{item.description}}>
+						<input class="itemImage" type="hidden" value={{item.image}}>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+	<div class="row no-gutters align-items-center">
+		<div class="col">
+			<h1 class="announcementText" align="center">This is all we have now, but a new arrival is expected in the near future!<h1>
+		</div>
+	</div>
 </div>
-<div ng-app="store" ng-controller="goodsList">
-	<table class="table">
-		<thead>
-			<th>id</th>
-			<th>Name</th>
-			<th>Category</th>
-			<th>Amount</th>
-			<th>Date</th>
-		</thead>
-		<tbody>
-			<tr ng-repeat="item in goods | orderBy : 'id'">
-				<td>{{item.id}}</td>
-				<td>{{item.name | limitTo:nameLetterLimit}}</td>
-				<td>{{item.category}}</td>
-				<td>{{item.amount}}</td>
-				<td>{{item.date}}</td>
-			</tr>
-		</tbody>
-	</table>
+
+<div class="modal fade" id="detailsModal" tabindex="-1" role="dialog" aria-labelledby="detailsModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="detailsModalLabel">{{detailsName}}</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <img src="" + {{detailsImage}} + "">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
 </div>
 <script>
 var app = angular.module('store', []);
-app.controller('goodsList', function($scope, $http) {
-  $http.get("https://raw.githubusercontent.com/Skifsang/CFT/master/data/data.json").then(function (response) {
-		$scope.goods = response.data.goods;
-		$scope.nameLetterLimit = 250;
-  });
+
+app.filter('startFrom', function() {
+	return function(input, start) {
+		start = +start; //parse to int
+		return input.slice(start);
+	}
 });
-</script>
-<script>
+
+app.controller('goodsList', function($scope, $http, $filter) {
+	$scope.nameLetterLimit = 250; //You can set max lenght of name field
+	
+	var previousOrderBy = localStorage.getItem("orderBy");
+	
+	if (previousOrderBy == null) { //Get orderBy from localStorage
+		$scope.order = "id"; //You can set default order by column
+		$("#" + $scope.order).prop("class", "fa fa-arrow-down");
+	} else {
+		$scope.order = previousOrderBy;
+		
+		if (previousOrderBy.search("-") == -1){
+			$("#" + previousOrderBy).find("i").prop("class", "fa fa-arrow-down");
+		} else {
+			$("#" + previousOrderBy).find("i").prop("class", "fa fa-arrow-up");
+		}
+	} 
+	//This gets JSON from Github repo. If you want you can choose another sorce
+	$http.get("https://raw.githubusercontent.com/Skifsang/CFT/master/data/data.json").then(function (response) {
+		$scope.goods = response.data.goods; //Data from JSON
+
+		$scope.numberOfPages = function() { //Function to get number of pages
+			return Math.ceil($scope.goods.length/$scope.pageSize);           
+		}
+		
+		$filter('startFrom')($scope.goods);
+	});
+	
+	$scope.changeOrder = function ($event) { //Function to change orderBy
+		var clickedOrder = angular.element($event.currentTarget).text().toLowerCase();
+			
+		$scope.toogleOrder(clickedOrder, angular.element($event.currentTarget));
+	}
+	
+	$scope.toogleOrder = function (clickedOrder, clickedElement) { //Function to toogle orderBy
+		$("th i").prop("class", "");
+		
+		if (clickedOrder == $scope.order){
+			$scope.order = "-" + clickedOrder;
+			$(clickedElement).find("i").prop("class", "fa fa-arrow-up");
+		} else {
+			$scope.order = clickedOrder;
+			$(clickedElement).find("i").prop("class", "fa fa-arrow-down");
+		}
+		
+		localStorage.setItem("orderBy", clickedOrder);
+	}
+	
+	$scope.categoryFilter = ""; //You can set category by default
+	$("#all").addClass("active");
+	
+	$scope.changeCategory = function ($event) { //Function to filter by category
+		$("#categoryList a").removeClass("active");
+		var clickedCategoryText = angular.element($event.currentTarget).text().toLowerCase()
+		
+		if (clickedCategoryText == "all") {
+			$scope.categoryFilter = "";
+		} else {
+			$scope.categoryFilter = {category : "" + clickedCategoryText + ""};
+		}
+		
+		angular.element($event.currentTarget).addClass("active");
+		$scope.numberOfPages();
+		$scope.currentPage = 0;
+	}
+	
+	var previousPageSize = localStorage.getItem("pageSize"); //Get data from localStore
+	
+	if (previousPageSize == null) { //Get orderBy from localStorage
+		$scope.pageSize = 5; //You can set page size by default
+	} else {
+		$scope.pageSize = previousPageSize;
+	}
+	
+	$("#pageSize" + $scope.pageSize).addClass("active");
+	
+	$scope.changepPageSize = function ($event) { //Function to change page size
+		$("#paginationSizes li").removeClass("active");
+		$scope.pageSize = angular.element($event.currentTarget).text();
+		$scope.currentPage = 0;
+		angular.element($event.currentTarget).addClass("active");
+		localStorage.setItem("pageSize", $scope.pageSize);
+	}
+	
+	$scope.currentPage = 0; //You can set current page by default
+	
+	$scope.openDetails = function ($event) {
+		var clickedElement = angular.element($event.currentTarget);
+		$scope.detailsName = clickedElement.find(".itemName").text();
+		$scope.detailsImage = clickedElement.find(".itemImage").text();
+	}
+});
 </script>
 </body>
 </html>
